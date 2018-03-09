@@ -9,7 +9,7 @@ namespace DPRN3_DIPL
     {
         static void Main(string[] args)
         {
-            string databaseConnectionConfig = "server=localhost;user=dotnet;database=DesastresNaturales;port=3306;password=dotnet";
+            string databaseConnectionConfig = "server=localhost;user=dotnet;database=CyberOlympics;port=3306;password=dotnet";
 
             MySqlConnection mySqlConnection = new MySqlConnection(databaseConnectionConfig);
 
@@ -20,28 +20,28 @@ namespace DPRN3_DIPL
 
 
                 string selectDesastresQuery =
-                "SELECT Desastre.id, "
-                + "TipoEvento.titulo AS tipoEvento, Causa.descripcion AS causa, Efectos.descripcion AS efectos, "
-                + "Ubicacion.latitud AS latitud, Ubicacion.longitud AS logitud, "
-                + "Desastre.fechaInicio, Desastre.fechaFinal, Desastre.nota "
-                + "FROM Desastre "
-                + "INNER JOIN TipoEvento ON Desastre.tipoEvento = TipoEvento.id "
-                + "INNER JOIN Causa ON Desastre.causa = Causa.id "
-                + "INNER JOIN Efectos ON Desastre.efectos = Efectos.id "
-                + "INNER JOIN Ubicacion ON Desastre.ubicacion = Ubicacion.id;";
+                "SELECT Benchmark.id AS ID," +
+                "Event.name AS Evento, Sport.name AS Deporte, CONCAT(Competitor.firstName, \" \", Competitor.lastName) AS Competidor, " +
+                "Competitor.country AS Pais, CONCAT(Goal.measure, \" \", Benchmark.score) AS Puntaje " +
+                "FROM Benchmark " +
+                "INNER JOIN Event ON Benchmark.event = Event.id " +
+                "INNER JOIN Competitor ON Benchmark.competitor = Competitor.id " +
+                "INNER JOIN Sport ON Event.sport = Sport.id " +
+                "INNER JOIN Goal ON Event.goal = Goal.id " +
+                "ORDER BY Evento;";
 
                 MySqlDataAdapter adapter = new MySqlDataAdapter(selectDesastresQuery, mySqlConnection);
 
                 DataSet desastres = new DataSet();
                 adapter.Fill(desastres, "Desastre");
 
-                Console.WriteLine("| id | tipoEvento        | causa              | efectos                 " 
-                + "| latitud     | logitud       | fechaInicio         | fechaFinal          | nota                                   |");
+                Console.WriteLine("| ID | Evento        | Deporte              | Competidor                 "
+                + "| País     | Puntaje          ");
 
                 foreach (DataRow row in desastres.Tables["Desastre"].Rows)
                 {
                     string rowFormatted = "";
-                    foreach(var col in row.ItemArray) 
+                    foreach (var col in row.ItemArray)
                     {
                         rowFormatted += col + " | ";
                     }
