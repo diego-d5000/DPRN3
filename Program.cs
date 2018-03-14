@@ -18,41 +18,62 @@ namespace DPRN3_DIPL
                 Console.WriteLine("Connecting to MySQL...");
                 mySqlConnection.Open();
 
+                Console.WriteLine("Tabla Inicial...");
+                PrintCompetitorsTable(mySqlConnection);
 
-                string selectDesastresQuery =
-                "SELECT Benchmark.id AS ID," +
-                "Event.name AS Evento, Sport.name AS Deporte, CONCAT(Competitor.firstName, \" \", Competitor.lastName) AS Competidor, " +
-                "Competitor.country AS Pais, CONCAT(Goal.measure, \" \", Benchmark.score) AS Puntaje " +
-                "FROM Benchmark " +
-                "INNER JOIN Event ON Benchmark.event = Event.id " +
-                "INNER JOIN Competitor ON Benchmark.competitor = Competitor.id " +
-                "INNER JOIN Sport ON Event.sport = Sport.id " +
-                "INNER JOIN Goal ON Event.goal = Goal.id " +
-                "ORDER BY Evento;";
+                Competitor nextCompetitor = new CompetitorAR(mySqlConnection);
+                nextCompetitor.FirstName = "Adam";
+                nextCompetitor.LastName = "Smith";
+                nextCompetitor.Country = "UK";
+                nextCompetitor.City = "Edinburgh";
+                nextCompetitor.Bio = null;
 
-                MySqlDataAdapter adapter = new MySqlDataAdapter(selectDesastresQuery, mySqlConnection);
+                ((ActiveRecord)nextCompetitor).Save();
 
-                DataSet desastres = new DataSet();
-                adapter.Fill(desastres, "Desastre");
+                Console.WriteLine("\n\n Despues de insertar un elemento...");
+                PrintCompetitorsTable(mySqlConnection);
 
-                Console.WriteLine("| ID | Evento        | Deporte              | Competidor                 "
-                + "| País     | Puntaje          ");
+                Competitor savedCompetitor = new CompetitorAR(mySqlConnection);
+                ((ActiveRecord)savedCompetitor).Fetch(nextCompetitor.Id);
+                Console.WriteLine("Prueba de uso de select, nombre del competidor con el id "
+                 + savedCompetitor.Id + " : " + savedCompetitor.FirstName);
 
-                foreach (DataRow row in desastres.Tables["Desastre"].Rows)
-                {
-                    string rowFormatted = "";
-                    foreach (var col in row.ItemArray)
-                    {
-                        rowFormatted += col + " | ";
-                    }
-                    Console.WriteLine(rowFormatted);
-                }
+                ((ActiveRecord)nextCompetitor).Delete();
+
+
+                Console.WriteLine("\n\n Despues de borrar el mismo elemento...");
+                PrintCompetitorsTable(mySqlConnection);
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 Environment.Exit(1);
+            }
+
+        }
+
+        static void PrintCompetitorsTable(MySqlConnection mySqlConnection)
+        {
+            string selectDesastresQuery =
+               "SELECT * From Competitor";
+
+            MySqlDataAdapter adapter = new MySqlDataAdapter(selectDesastresQuery, mySqlConnection);
+
+            DataSet competitors = new DataSet();
+            adapter.Fill(competitors, "Competitor");
+
+            Console.WriteLine("| ID | Nombre          | Apellido            | Pais            "
+            + "| Ciudad        | Biografia             ");
+
+            foreach (DataRow row in competitors.Tables["Competitor"].Rows)
+            {
+                string rowFormatted = "";
+                foreach (var col in row.ItemArray)
+                {
+                    rowFormatted += col + " | ";
+                }
+                Console.WriteLine(rowFormatted);
             }
         }
     }
